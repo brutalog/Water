@@ -134,50 +134,41 @@
     </div>
 
     <script>
-        function showAlert(location, severity) { 
-            let now = new Date();
-            document.getElementById('alert-time').innerText = now.toLocaleTimeString();
-            document.getElementById('alert-location').innerText = location;
-            document.getElementById('alert-severity').innerText = severity;
-            document.getElementById('leakAlert').style.display = 'flex'; 
-        }
-        function closeAlert() { 
-            document.getElementById('leakAlert').style.display = 'none'; 
-        }
         const ctx = document.getElementById('flowChart').getContext('2d');
-const flowChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Flow Rate',
-            data: [],
-            borderColor: '#5b9ee1',
-            backgroundColor: 'rgba(91, 158, 225, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true, grid: { color: '#2a3545' }, ticks: { color: '#8b9eb5' } },
-            x: { grid: { display: false }, ticks: { color: '#8b9eb5' } }
-        },
-        plugins: { legend: { display: false } }
-    }
-});
+        const flowChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Flow Rate',
+                    data: [],
+                    borderColor: '#5b9ee1',
+                    backgroundColor: 'rgba(91, 158, 225, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#2a3545' }, ticks: { color: '#8b9eb5' } },
+                    x: { grid: { display: false }, ticks: { color: '#8b9eb5' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
 
-function updateDashboard() {
-    fetch('/api/data')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('live-flow').innerHTML = data.flow_rate + ' <span>L/min</span>';
-            
-            flowChart.data.labels.push(data.timestamp);
-            flowChart.data.datasets[0].data.push(data.flow_rate);
+        function updateDashboard() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString();
+            let flowRate = (Math.random() * 3 + 10.5).toFixed(1);
+
+            document.getElementById('live-flow').innerHTML = flowRate + ' <span>L/min</span>';
+
+            flowChart.data.labels.push(timeString);
+            flowChart.data.datasets[0].data.push(flowRate);
             
             if (flowChart.data.labels.length > 10) {
                 flowChart.data.labels.shift();
@@ -185,33 +176,32 @@ function updateDashboard() {
             }
             flowChart.update();
 
-            if (data.status === -1) {
-                showAlert(data.location, data.severity);
+            if (Math.random() < 0.02) {
+                let spike = (Math.random() * 10 + 40).toFixed(1);
+                document.getElementById('live-flow').innerHTML = spike + ' <span>L/min</span>';
+                flowChart.data.datasets[0].data[flowChart.data.datasets[0].data.length - 1] = spike;
+                flowChart.update();
+                showAlert("Zone 1 (Main Pipe)", "CRITICAL (Simulated Burst)");
                 document.getElementById('leak-count').innerText = '1';
             }
-        });
-}
+        }
 
-function showAlert(location, severity) { 
-    let now = new Date();
-    document.getElementById('alert-time').innerText = now.toLocaleTimeString();
-    document.getElementById('alert-location').innerText = location;
-    document.getElementById('alert-severity').innerText = severity;
-    document.getElementById('leakAlert').style.display = 'flex'; 
-}
+        function showAlert(location, severity) { 
+            let now = new Date();
+            document.getElementById('alert-time').innerText = now.toLocaleTimeString();
+            document.getElementById('alert-location').innerText = location;
+            document.getElementById('alert-severity').innerText = severity;
+            document.getElementById('leakAlert').style.display = 'flex'; 
+        }
 
-function closeAlert() { 
-    document.getElementById('leakAlert').style.display = 'none'; 
-    fetch('/api/acknowledge', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({location: document.getElementById('alert-location').innerText})
-    });
-}
+        function closeAlert() { 
+            document.getElementById('leakAlert').style.display = 'none'; 
+            document.getElementById('leak-count').innerText = '0';
+        }
 
-setInterval(updateDashboard, 3000);
-        </script>
+        setInterval(updateDashboard, 3000);
+    </script>
 
 </body>
-
 </html>
+
