@@ -67,7 +67,7 @@
 
             <div class="options">
                 <label><input type="checkbox" checked> Remember me</label>
-                <a href="/forgot">Forgot password?</a>
+                <a href="/forgot.html">Forgot password?</a>
             </div>
 
             <button class="btn-login" onclick="attemptLogin()">Login</button>
@@ -81,7 +81,7 @@
             let errorBox = document.getElementById("error-message");
 
             if (user === "Admin" && pass === "password123") {
-                window.location.href = '/dashboard';
+                window.location.href = '/dashboard.html';
             } else {
                 errorBox.style.display = "block";
                 document.getElementById("passwordInput").value = "";
@@ -91,3 +91,4 @@
     </center>
 </body>
 </html>
+
