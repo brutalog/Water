@@ -76,32 +76,44 @@
 
     <script>
         function fetchLogs() {
-            fetch('/api/logs')
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.querySelector('#logs-table tbody');
-                    tbody.innerHTML = '';
-                    
-                    data.reverse().forEach(log => {
-                        let severityClass = log.Severity.includes('CRITICAL') ? 'crit' : 'warn';
-                        let statusClass = log.Status === 'Acknowledged' ? 'ack' : '';
-                        
-                        let row = `<tr>
-                            <td>${log.Timestamp}</td>
-                            <td>${log.Location}</td>
-                            <td>${log.Flow_Rate}</td>
-                            <td>${log.Pressure}</td>
-                            <td class="${severityClass}">${log.Severity}</td>
-                            <td class="${statusClass}">${log.Status}</td>
-                        </tr>`;
-                        tbody.innerHTML += row;
-                    });
-                });
+            const dummyData = [
+                { 
+                    Timestamp: new Date(Date.now() - 120000).toLocaleString(), 
+                    Location: "Zone 1 (Main Pipe)", Flow_Rate: "42.5", Pressure: "0.8", 
+                    Severity: "CRITICAL (Simulated Burst)", Status: "Unacknowledged" 
+                },
+                { 
+                    Timestamp: new Date(Date.now() - 3600000).toLocaleString(), 
+                    Location: "Zone 3 (Valve B)", Flow_Rate: "18.2", Pressure: "1.5", 
+                    Severity: "WARNING (Minor Leak)", Status: "Acknowledged" 
+                },
+                { 
+                    Timestamp: new Date(Date.now() - 86400000).toLocaleString(), 
+                    Location: "Zone 2 (Pump Station)", Flow_Rate: "48.1", Pressure: "0.4", 
+                    Severity: "CRITICAL (Major Burst)", Status: "Acknowledged" 
+                }
+            ];
+
+            const tbody = document.querySelector('#logs-table tbody');
+            tbody.innerHTML = '';
+            
+            dummyData.forEach(log => {
+                let severityClass = log.Severity.includes('CRITICAL') ? 'crit' : 'warn';
+                let statusClass = log.Status === 'Acknowledged' ? 'ack' : '';
+                
+                let row = `<tr>
+                    <td>${log.Timestamp}</td>
+                    <td>${log.Location}</td>
+                    <td>${log.Flow_Rate}</td>
+                    <td>${log.Pressure}</td>
+                    <td class="${severityClass}">${log.Severity}</td>
+                    <td class="${statusClass}">${log.Status}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
         }
         
         fetchLogs();
-        setInterval(fetchLogs, 5000);
     </script>
 </body>
-
 </html>
