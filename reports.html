@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Water System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; background-color: #151b23; color: #e0e6ed;
+            display: flex; height: 100vh; overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px; background-color: #1e2632; border-right: 1px solid #2a3545;
+            display: flex; flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 20px; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #2a3545;
+        }
+        .nav-links { list-style: none; padding: 0; margin: 20px 0; display: flex; flex-direction: column; height: 100%; }
+        .nav-links li { padding: 15px 20px; cursor: pointer; color: #8b9eb5; display: flex; align-items: center; gap: 15px; }
+        .nav-links li.active { background-color: #2a3545; color: white; border-left: 3px solid #5b9ee1; }
+        .nav-links li:hover { background-color: #2a3545; color: white; }
+
+        .main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
+        
+        .large-card {
+            background-color: #1e2632; padding: 20px; border-radius: 10px;
+            border: 1px solid #2a3545; margin-top: 20px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #2a3545; }
+        th { background-color: #151b23; color: #8b9eb5; font-weight: bold; }
+        tr:hover { background-color: #2a3545; }
+        
+        .crit { color: #d9534f; font-weight: bold; }
+        .warn { color: #f0ad4e; font-weight: bold; }
+        .ack { color: #5bc0de; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span style="color:#5b9ee1; font-size: 1.5rem;">💧</span> Smart Water
+        </div>
+        <ul class="nav-links">
+            <li onclick="window.location.href='/dashboard'">🎛️ Dashboard</li>
+            <li class="active">📄 Leak Reports</li>
+            <li style="margin-top: auto;" onclick="window.location.href='/'">🚪 Logout</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h2 style="margin: 0;">System Incident Logs</h2>
+        
+        <div class="large-card">
+            <table id="logs-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Location</th>
+                        <th>Flow (L/min)</th>
+                        <th>Pressure (Bar)</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function fetchLogs() {
+            fetch('/api/logs')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#logs-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    data.reverse().forEach(log => {
+                        let severityClass = log.Severity.includes('CRITICAL') ? 'crit' : 'warn';
+                        let statusClass = log.Status === 'Acknowledged' ? 'ack' : '';
+                        
+                        let row = `<tr>
+                            <td>${log.Timestamp}</td>
+                            <td>${log.Location}</td>
+                            <td>${log.Flow_Rate}</td>
+                            <td>${log.Pressure}</td>
+                            <td class="${severityClass}">${log.Severity}</td>
+                            <td class="${statusClass}">${log.Status}</td>
+                        </tr>`;
+                        tbody.innerHTML += row;
+                    });
+                });
+        }
+        
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+    </script>
+</body>
+</html>

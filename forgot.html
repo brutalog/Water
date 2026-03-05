@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; background-color: #151b23; display: flex;
+            justify-content: center; align-items: center; height: 100vh; color: #e0e6ed;
+        }
+        .login-card {
+            background-color: #1e2632; padding: 40px; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 350px; border: 1px solid #2a3545; text-align: center;
+        }
+        .login-card h2 { margin-top: 0; margin-bottom: 10px; font-weight: 500; }
+        .login-card p { color: #8b9eb5; font-size: 0.9rem; margin-bottom: 25px; }
+        .input-group {
+            margin-bottom: 20px; background-color: #151b23; border-radius: 6px;
+            padding: 12px 15px; display: flex; align-items: center; border: 1px solid #2a3545;
+        }
+        .input-group input {
+            background: transparent; border: none; outline: none; color: white; width: 100%; margin-left: 10px; font-size: 1rem;
+        }
+        .btn-login {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #f0ad4e, #ec971f); 
+            border: none; border-radius: 6px; color: white; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+        }
+        .btn-login:hover { opacity: 0.9; }
+        .register-link { margin-top: 20px; font-size: 0.9rem; color: #8b9eb5; }
+        .register-link a { color: #5b9ee1; text-decoration: none; }
+        
+        #msg-box {
+            padding: 10px; border-radius: 5px; margin-bottom: 20px; display: none; font-size: 0.9rem;
+            color: #28a745; background-color: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Reset Password</h2>
+        <p>Enter your email address and we'll send you a link to reset your password.</p>
+        
+        <div id="msg-box">Reset link sent to your email!</div>
+        
+        <div class="input-group">📧 <input type="email" id="resetEmail" placeholder="Email Address"></div>
+
+        <button class="btn-login" onclick="sendReset()">Send Reset Link</button>
+
+        <div class="register-link">
+            Remember your password? <a href="/">Back to Login</a>
+        </div>
+    </div>
+
+    <script>
+        function sendReset() {
+            let email = document.getElementById("resetEmail").value;
+            if(email !== "") {
+                document.getElementById("msg-box").style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard - Water System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; background-color: #151b23; color: #e0e6ed;
+            display: flex; height: 100vh; overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px; background-color: #1e2632; border-right: 1px solid #2a3545;
+            display: flex; flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 20px; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #2a3545;
+        }
+        .nav-links { list-style: none; padding: 0; margin: 20px 0; display: flex; flex-direction: column; height: 100%; }
+        .nav-links li { padding: 15px 20px; cursor: pointer; color: #8b9eb5; display: flex; align-items: center; gap: 15px; }
+        .nav-links li.active { background-color: #2a3545; color: white; border-left: 3px solid #5b9ee1; }
+        .nav-links li:hover { background-color: #2a3545; color: white; }
+
+        .main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
+        
+        .dashboard-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; margin-top: 20px;
+        }
+        .card {
+            background-color: #1e2632; padding: 20px; border-radius: 10px;
+            border: 1px solid #2a3545; display: flex; align-items: center; gap: 20px;
+        }
+        .card-icon {
+            font-size: 2.5rem; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; background-color: #2a3545;
+        }
+        .card-info h3 { margin: 0; font-size: 1rem; color: #8b9eb5; }
+        .card-info p { margin: 5px 0 0 0; font-size: 2rem; font-weight: bold; color: white; }
+        .card-info span { font-size: 1rem; color: #8b9eb5; }
+
+        .large-card {
+            background-color: #1e2632; padding: 20px; border-radius: 10px;
+            border: 1px solid #2a3545; height: 400px; display: flex; flex-direction: column;
+        }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); display: none; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(3px);
+        }
+        .modal-box {
+            background-color: #1e2632; border: 1px solid #2a3545; border-radius: 10px;
+            width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); padding: 25px; border-top: 5px solid #d9534f;
+        }
+        .modal-header { display: flex; align-items: center; gap: 15px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .modal-buttons { display: flex; justify-content: flex-end; margin-top: 30px; }
+        .btn { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; background-color: #d9534f; }
+        .btn:hover { opacity: 0.9; }
+        
+        .alert-details {
+            background-color: #151b23; padding: 15px; border-radius: 8px; border: 1px solid #2a3545; margin-top: 15px;
+        }
+        .alert-details p { margin: 5px 0; color: #8b9eb5; font-size: 1rem; }
+        .alert-details strong { color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span style="color:#5b9ee1; font-size: 1.5rem;">💧</span> Smart Water
+        </div>
+        <ul class="nav-links">
+            <li class="active">🎛️ Dashboard</li>
+            <li onclick="window.location.href='/reports'">📄 Leak Reports</li>
+            <li style="margin-top: auto;" onclick="window.location.href='/'">🚪 Logout</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">System Overview</h2>
+            <button onclick="showAlert('Zone 1 (Main Pipe)', 'CRITICAL (Major Burst)')" style="padding: 10px 15px; background: #d9534f; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold;">🚨 Test Leak Alert</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-icon" style="color: #5b9ee1;">💧</div>
+                <div class="card-info">
+                    <h3>Current Flow Rate</h3>
+                    <p id="live-flow">12.6 <span>L/min</span></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon" style="color: #d9534f;">⚠️</div>
+                <div class="card-info">
+                    <h3>Leaks Detected</h3>
+                    <p style="color: #d9534f;" id="leak-count">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-card">
+            <h3 style="margin-top: 0; color: #8b9eb5; border-bottom: 1px solid #2a3545; padding-bottom: 10px;">Water Flow Rate Graph (Live)</h3>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #444;">
+                <canvas id="flowChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="leakAlert">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span style="background: #d9534f; color: white; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">!</span>
+                WATER LEAK ALERT
+            </div>
+            <p style="color: #e0e6ed; font-size: 1.1rem; margin-top: 0;">An abnormal water flow has been detected by the system.</p>
+            
+            <div class="alert-details">
+                <p>Location: <strong id="alert-location">--</strong></p>
+                <p>Time Detected: <strong id="alert-time">--</strong></p>
+                <p>Severity: <strong id="alert-severity" style="color: #d9534f;">--</strong></p>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeAlert()">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAlert(location, severity) { 
+            let now = new Date();
+            document.getElementById('alert-time').innerText = now.toLocaleTimeString();
+            document.getElementById('alert-location').innerText = location;
+            document.getElementById('alert-severity').innerText = severity;
+            document.getElementById('leakAlert').style.display = 'flex'; 
+        }
+        function closeAlert() { 
+            document.getElementById('leakAlert').style.display = 'none'; 
+        }
+        const ctx = document.getElementById('flowChart').getContext('2d');
+const flowChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Flow Rate',
+            data: [],
+            borderColor: '#5b9ee1',
+            backgroundColor: 'rgba(91, 158, 225, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#2a3545' }, ticks: { color: '#8b9eb5' } },
+            x: { grid: { display: false }, ticks: { color: '#8b9eb5' } }
+        },
+        plugins: { legend: { display: false } }
+    }
+});
+
+function updateDashboard() {
+    fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('live-flow').innerHTML = data.flow_rate + ' <span>L/min</span>';
+            
+            flowChart.data.labels.push(data.timestamp);
+            flowChart.data.datasets[0].data.push(data.flow_rate);
+            
+            if (flowChart.data.labels.length > 10) {
+                flowChart.data.labels.shift();
+                flowChart.data.datasets[0].data.shift();
+            }
+            flowChart.update();
+
+            if (data.status === -1) {
+                showAlert(data.location, data.severity);
+                document.getElementById('leak-count').innerText = '1';
+            }
+        });
+}
+
+function showAlert(location, severity) { 
+    let now = new Date();
+    document.getElementById('alert-time').innerText = now.toLocaleTimeString();
+    document.getElementById('alert-location').innerText = location;
+    document.getElementById('alert-severity').innerText = severity;
+    document.getElementById('leakAlert').style.display = 'flex'; 
+}
+
+function closeAlert() { 
+    document.getElementById('leakAlert').style.display = 'none'; 
+    fetch('/api/acknowledge', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({location: document.getElementById('alert-location').innerText})
+    });
+}
+
+setInterval(updateDashboard, 3000);
+        </script>
+
+</body>
+</html>

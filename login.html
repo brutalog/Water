@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Water Leakage System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0; background-color: #151b23;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; color: #e0e6ed;
+        }
+        .header-title { text-align: center; margin-bottom: 30px; }
+        .header-title h1 { font-size: 1.8rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .header-title p { color: #8b9eb5; margin: 5px 0 0 0; font-size: 1.1rem; }
+        
+        .login-card {
+            background-color: #1e2632; padding: 40px; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 350px; border: 1px solid #2a3545;
+        }
+        .login-card h2 { text-align: center; margin-top: 0; margin-bottom: 25px; font-weight: 500; }
+        
+        .input-group {
+            margin-bottom: 20px; background-color: #151b23; border-radius: 6px;
+            padding: 12px 15px; display: flex; align-items: center; border: 1px solid #2a3545;
+        }
+        .input-group input {
+            background: transparent; border: none; outline: none; color: white; width: 100%; margin-left: 10px; font-size: 1rem;
+        }
+        
+        .options { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 25px; }
+        .options a { color: #4a90e2; text-decoration: none; }
+        
+        .btn-login {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #5b9ee1, #3b7bc4);
+            border: none; border-radius: 6px; color: white; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+        }
+        .btn-login:hover { opacity: 0.9; }
+
+        #error-message {
+            color: #ff6b6b; background-color: rgba(255, 107, 107, 0.1); padding: 10px;
+            border-radius: 5px; text-align: center; margin-bottom: 20px; display: none;
+            font-size: 0.9rem; border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <center>
+    <div>
+        <div class="header-title">
+            <h1><span style="color:#5b9ee1; font-size: 2rem;">💧</span> Water Leakage Management System</h1>
+        </div>
+
+        <div class="login-card">
+            <h2>Login</h2>
+            
+            <div id="error-message">Invalid Username or Password!</div>
+            
+            <div class="input-group">
+                👤 <input type="text" id="usernameInput" placeholder="Username">
+            </div>
+            
+            <div class="input-group">
+                🔒 <input type="password" id="passwordInput" placeholder="Password">
+            </div>
+
+            <div class="options">
+                <label><input type="checkbox" checked> Remember me</label>
+                <a href="/forgot">Forgot password?</a>
+            </div>
+
+            <button class="btn-login" onclick="attemptLogin()">Login</button>
+        </div>
+    </div>
+
+    <script>
+        function attemptLogin() {
+            let user = document.getElementById("usernameInput").value;
+            let pass = document.getElementById("passwordInput").value;
+            let errorBox = document.getElementById("error-message");
+
+            if (user === "Admin" && pass === "password123") {
+                window.location.href = '/dashboard';
+            } else {
+                errorBox.style.display = "block";
+                document.getElementById("passwordInput").value = "";
+            }
+        }
+    </script>
+    </center>
+</body>
+</html>
